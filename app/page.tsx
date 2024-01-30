@@ -1,37 +1,19 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Input from "@/components/Input";
+import SearchBar from "@/components/Input";
 import { fetchMovies } from "@/utils";
+import { HomeProps } from "@/types";
 import MovieCard from "@/components/MovieCard";
 import Hero from "@/components/Hero";
+import CustomFilter from "@/components/CustomFilter";
+import { types, yearsOfProduction } from "@/constants";
 
-export default function Home() {
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
-
-  const getMovies = async () => {
-    try {
-      setLoading(true);
-
-      const { Search: result } = await fetchMovies({ searchTerm: searchValue });
-
-      setMovies(result);
-    } catch (err) {
-      // TODO what to do here?
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getMovies();
-  }, [searchValue]);
-
-  console.log({ movies });
+export default async function Home({ searchParams }: HomeProps) {
+  const movies = await fetchMovies({
+    searchTerm: searchParams?.searchValue || "Barbie",
+    year: searchParams?.year || "2023",
+    type: searchParams?.type || "Movie",
+  });
 
   return (
     <main className="overflow-hidden">
@@ -43,24 +25,20 @@ export default function Home() {
           <p>Explore the media you might like</p>
 
           <div className="home__filters">
-            {/* <SearchBar setManufacturer={setManufacturer} setModel={setModel} /> */}
-            <Input setSearchValue={setSearchValue} />
+            <SearchBar />
 
             <div className="home__filter-container">
-              {/* <CustomFilter title="fuel" options={fuels} setFilter={setFuel} />
-              <CustomFilter
-                title="year"
-                options={yearsOfProduction}
-                setFilter={setYear}
-              /> */}
+              <CustomFilter title="type" options={types} />
+              <CustomFilter title="year" options={yearsOfProduction} />
             </div>
           </div>
         </div>
 
-        {movies?.length > 0 ? (
+        {movies?.Search?.length > 0 ? (
           <section>
             <div className="home__cars-wrapper">
-              {movies?.map((movie) => (
+              {/* TODO add type */}
+              {movies?.Search.map((movie: any) => (
                 <MovieCard
                   key={movie.imdbID}
                   title={movie.Title}
@@ -72,7 +50,7 @@ export default function Home() {
               ))}
             </div>
 
-            {loading && (
+            {
               <div className="mt-16 w-full flex-center">
                 <Image
                   src="/loader.svg"
@@ -82,7 +60,7 @@ export default function Home() {
                   className="object-contain"
                 />
               </div>
-            )}
+            }
           </section>
         ) : (
           <section>
