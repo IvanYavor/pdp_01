@@ -15,11 +15,11 @@ export const types = [
     value: "movie",
   },
   {
-    title: "Series",
-    value: "series",
+    title: "TV",
+    value: "tv",
   },
   {
-    title: "Episode",
-    value: "episode",
+    title: "Multi",
+    value: "multi",
   },
 ];

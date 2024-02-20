@@ -1,15 +1,8 @@
 "use client";
-import React from "react";
-import Image from "next/image";
+import React, { useState } from "react";
 import CustomButton from "./CustomButton";
 
-// TODO add type checking
-function MovieCard({ title, posterUrl, type, year, imdbId }: any) {
-  const handleButtonClick = () => {
-    // TODO add logic to redirect or open modal
-    console.log("Button clicked!");
-  };
-
+function MovieCard({ movieId, title, posterUrl, type }: any) {
   return (
     <div className="car-card group">
       <div className="car-card__content">
@@ -25,26 +18,13 @@ function MovieCard({ title, posterUrl, type, year, imdbId }: any) {
         />
       </div>
 
-      <div className="relative flex w-full mt-2">
-        <div className="car-card__btn-container">
-          <CustomButton
-            title="View More"
-            containerStyles="w-full py-[16px] rounded-full bg-primary-blue"
-            textStyles="text-white text-[14px] leading-[17px] font-bold"
-            rightIcon="/right-arrow.svg"
-            // TODO add logic to redirect or open modal
-            // handleClick={() => setIsOpen(true)}
-            handleClick={handleButtonClick}
-          />
-        </div>
-      </div>
-
-      {/* TODO if decide to go with modal update this line */}
-      {/* <CarDetails
-        isOpen={isOpen}
-        closeModal={() => setIsOpen(false)}
-        car={car}
-      /> */}
+      <CustomButton
+        title="View More"
+        containerStyles="w-full py-[16px] rounded-full bg-primary-blue"
+        textStyles="text-white text-[14px] leading-[17px] font-bold"
+        rightIcon="/right-arrow.svg"
+        href={`/movie-details/${movieId}?type=${type}`}
+      />
     </div>
   );
 }

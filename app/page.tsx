@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import "./globals.css";
 import SearchBar from "@/components/Input";
-import { fetchMovies } from "@/utils";
+import { fetchGenres, fetchMovies, getDiscover, getPosterUrl } from "@/utils";
 import { HomeProps } from "@/types";
 import MovieCard from "@/components/MovieCard";
 import Hero from "@/components/Hero";
@@ -9,11 +8,23 @@ import CustomFilter from "@/components/CustomFilter";
 import { types, yearsOfProduction } from "@/constants";
 
 export default async function Home({ searchParams }: HomeProps) {
-  const movies = await fetchMovies({
-    searchTerm: searchParams?.searchValue || "Barbie",
-    year: searchParams?.year || "2023",
-    type: searchParams?.type || "Movie",
-  });
+  const fetchFunction = searchParams?.searchValue
+    ? () =>
+        fetchMovies({
+          searchTerm: searchParams.searchValue,
+          year: searchParams.year,
+          type: searchParams.type,
+        })
+    : () =>
+        getDiscover({
+          genre: Number(searchParams.genre),
+          year: searchParams.year,
+          type: searchParams.type,
+        });
+
+  const genres = await fetchGenres(searchParams.type);
+
+  const result = await fetchFunction();
 
   return (
     <main className="overflow-hidden">
@@ -30,37 +41,32 @@ export default async function Home({ searchParams }: HomeProps) {
             <div className="home__filter-container">
               <CustomFilter title="type" options={types} />
               <CustomFilter title="year" options={yearsOfProduction} />
+              <CustomFilter
+                title="genre"
+                options={genres.map((genre: any) => ({
+                  title: genre.name,
+                  value: genre.id,
+                }))}
+              />
             </div>
           </div>
         </div>
 
-        {movies?.Search?.length > 0 ? (
+        {result?.length > 0 ? (
           <section>
             <div className="home__cars-wrapper">
-              {/* TODO add type */}
-              {movies?.Search.map((movie: any) => (
+              {result?.map((movie: any) => (
                 <MovieCard
-                  key={movie.imdbID}
-                  title={movie.Title}
-                  posterUrl={movie.Poster}
+                  key={movie.id}
+                  movieId={movie.id}
+                  title={movie.original_title}
+                  posterUrl={getPosterUrl(movie.poster_path)}
                   year={movie.Year}
-                  imdbId={movie.imdbID}
-                  type={movie.Type}
+                  imdbId={movie.id}
+                  type={searchParams.type || "movie"}
                 />
               ))}
             </div>
-
-            {
-              <div className="mt-16 w-full flex-center">
-                <Image
-                  src="/loader.svg"
-                  alt="loader"
-                  width={50}
-                  height={50}
-                  className="object-contain"
-                />
-              </div>
-            }
           </section>
         ) : (
           <section>
